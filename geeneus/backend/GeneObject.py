@@ -78,7 +78,7 @@ class GeneObject:
 #
     def get_coding_sequence(self, genexml):
         # stuff
-        print genexml[0]["Entrezgene_locus"][0]["Gene-commentary_products"][0]["Gene-commentary_genomic-coords"][0]["Seq-loc_mix"]["Seq-loc-mix"]
+        print(genexml[0]["Entrezgene_locus"][0]["Gene-commentary_products"][0]["Gene-commentary_genomic-coords"][0]["Seq-loc_mix"]["Seq-loc-mix"])
         return "ok"
 
 
@@ -185,7 +185,7 @@ class GeneObject:
 
     def __xml_is_OK(self, genexml):
         if len(genexml) > 1:
-            print "WARNING[GeneObject.__xml_is_ok()] - GeneXML detected more than one record associated with this GI.\nThis should never happen."
+            print("WARNING[GeneObject.__xml_is_ok()] - GeneXML detected more than one record associated with this GI.\nThis should never happen.")
 
         if len(genexml) == 0:
             return False

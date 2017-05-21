@@ -20,11 +20,11 @@ proteome   Functions for dealing with protein data (e.g. protein sequence)
 
 """
 
-import Proteome
-import Genome
+from . import Proteome
+from . import Genome
 
 tool = "biopython"
 email = None
 version = "0.1.9"
 author = "alex.holehouse@gmail.com"
-print version
+print(version)

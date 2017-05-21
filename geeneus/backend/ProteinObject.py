@@ -10,13 +10,13 @@ from Bio import SeqIO
 from Bio.Alphabet import IUPAC
 
 # used when XML does not make semantic sense
-from Parser import BadXMLException
+from .Parser import BadXMLException
 
 import string
 import re
 
-import ProteinParser
-from Utilities import show_warning, show_error, show_status
+from . import ProteinParser
+from .Utilities import show_warning, show_error, show_status
 
 # ==========================================================================================
 # Object attributes
@@ -199,7 +199,7 @@ class ProteinObject:
             # it's for mRNA!)
             try:
                 self.raw_XML = proteinxml[0]
-            except IndexError, e:
+            except IndexError as e:
                 return
             return
 
@@ -232,23 +232,23 @@ class ProteinObject:
             self.isoforms = self._extract_isoforms(proteinxml[0], accession, self.sequence)
 
             self.protein_variants = self._extract_variant_features(proteinxml[0]["GBSeq_feature-table"])        
-        except KeyError, e:
-            print "--------------------   WARNING  MESSAGE FROM GEENEUS   --------------------------- "
-            print ""
-            print ">>>   ERROR when building ProteinObject using accession " + accession + " (fected from NCBI)"
-            print ">>>   Unable to find the following expected entry in the xml: " + str(e)
-            print ""
-            print ">>>   This has happened because somewhere, someone failed to define the XML record" 
-            print ">>>   associated with this protein correctly. NOTE: This may indicate the record"
-            print ">>>   is actually out of date/removed - we recommend you manually check what this"
-            print ">>>   record is online and take appropriate action (e.g. if it no longer exists"
-            print ">>>   remove it from your lists of accessions).         "
-            print ""
-            print ">>>   This record accessions is now being skipped to avoid further problems      "
-            print ">>>   (though you won't see this error again)."
-            print ""
-            print "----------------------------------------------------------------------------------"
-            print ""
+        except KeyError as e:
+            print("--------------------   WARNING  MESSAGE FROM GEENEUS   --------------------------- ")
+            print("")
+            print(">>>   ERROR when building ProteinObject using accession " + accession + " (fected from NCBI)")
+            print(">>>   Unable to find the following expected entry in the xml: " + str(e))
+            print("")
+            print(">>>   This has happened because somewhere, someone failed to define the XML record") 
+            print(">>>   associated with this protein correctly. NOTE: This may indicate the record")
+            print(">>>   is actually out of date/removed - we recommend you manually check what this")
+            print(">>>   record is online and take appropriate action (e.g. if it no longer exists")
+            print(">>>   remove it from your lists of accessions).         ")
+            print("")
+            print(">>>   This record accessions is now being skipped to avoid further problems      ")
+            print(">>>   (though you won't see this error again).")
+            print("")
+            print("----------------------------------------------------------------------------------")
+            print("")
             raise BadXMLException(e)
             
 
@@ -338,7 +338,7 @@ class ProteinObject:
             
             # get mutation defString
             for feature_subsection in feature["GBFeature_quals"]:
-                if not feature_subsection.has_key("GBQualifier_value"):
+                if "GBQualifier_value" not in feature_subsection:
                     continue
                 
                 # somewhat niave approach - take first one we find...
@@ -360,8 +360,8 @@ class ProteinObject:
             except ValueError:
                 try:
                     location = int(location.split("..")[0])
-                except Exception, e:
-                    print "Fundemental flaw while parsing location information for " + acc
+                except Exception as e:
+                    print("Fundemental flaw while parsing location information for " + acc)
                     raise e
                 
                 
@@ -435,10 +435,10 @@ class ProteinObject:
         variant_list = []
         
         for feature in featurelist:            
-            if not feature.has_key("GBFeature_quals"):
+            if "GBFeature_quals" not in feature:
                 continue            
             for feature_subsection in feature["GBFeature_quals"]:               
-                if not feature_subsection.has_key("GBQualifier_value"):
+                if "GBQualifier_value" not in feature_subsection:
                     continue
                 if feature_subsection["GBQualifier_value"] == "Variant":
                     mutDictTemp = buildMutationEntry(feature, self.accession, self.sequence)
@@ -536,7 +536,7 @@ class ProteinObject:
             tempDomainDictionary = {}
             
             # check first
-            if not f.has_key('GBFeature_quals') or not f.has_key('GBFeature_key'):
+            if 'GBFeature_quals' not in f or 'GBFeature_key' not in f:
                 continue
 
             try:
@@ -616,7 +616,7 @@ class ProteinObject:
             # in the defString
             locations = [m.start() for m in re.finditer('isoform', defString)]
             
-            for i in xrange(0,len(locations)):
+            for i in range(0,len(locations)):
                 
                 # if we're at the last isoform in the list (i.e. if we have 1)
                 # then 0 = 1-1
@@ -832,8 +832,8 @@ class ProteinObject:
 
                     try:
                         splicingEvents.append((getRelevantIsoforms(defString), getSpliceEvent(defString, i["GBFeature_intervals"][0])))
-                    except IsoformException, e:
-                        print e
+                    except IsoformException as e:
+                        print(e)
                         raise IsoformException("Error while getting isoform data for accession " + ID) 
 
         # now we've built a list of tuples of the form ([isoform numbers], [description]) we have to do each isoform in sequence
@@ -891,20 +891,20 @@ class ProteinObject:
                             sect1 = isoformSequenceList[isoform][:offsetVector[start]+start]
                             sect2 = isoformSequenceList[isoform][offsetVector[stop-1]+stop:]
                                                     
-                        except Exception, e:
-                            print e
+                        except Exception as e:
+                            print(e)
                             raise IsoformException("ERROR when cutting out splice variant regions [missing]")
 
                         isoformSequenceList[isoform] = sect1+sect2
 
                         # set values in removed region to None, such that should we ever mess up
                         # we avoid any silent creeping errors
-                        for i in xrange(start, stop):
+                        for i in range(start, stop):
                             offsetVector[i] = None
 
                         # for all values greater than stop we now update our offsetVector
                         # to include the correct offset 
-                        for i in xrange(stop, seqLen):
+                        for i in range(stop, seqLen):
                             offsetVector[i] = offsetVector[i] + deltaOffset
             
                     if event[1][0] == "replacement":
@@ -918,16 +918,16 @@ class ProteinObject:
                         try:
                             sect1 = isoformSequenceList[isoform][:offsetVector[start]+start]
                             sect2 = isoformSequenceList[isoform][offsetVector[stop-1]+stop:]
-                        except Exception, e:
-                            print e
+                        except Exception as e:
+                            print(e)
                             raise IsoformException("ERROR when cutting out splice variant regions [replacement]")   
                         
                         isoformSequenceList[isoform] = sect1+event[1][4]+sect2
                                                 
-                        for i in xrange(start, stop):
+                        for i in range(start, stop):
                             offsetVector[i] = None
             
-                        for i in xrange(stop, seqLen):
+                        for i in range(stop, seqLen):
                             offsetVector[i] = offsetVector[i] + deltaOffset
                             
 
@@ -945,8 +945,8 @@ class ProteinObject:
         # salvage works in the case where a single isoform was skipped and a single isoform name remains, meaning
         # chance are they should actually go together
         if salvage == 1:
-            isoformSequenceList_keys = isoformSequenceList.keys()
-            nametoIsoID_keys = nametoIsoID.keys()
+            isoformSequenceList_keys = list(isoformSequenceList.keys())
+            nametoIsoID_keys = list(nametoIsoID.keys())
 
             # remove 1
             try:

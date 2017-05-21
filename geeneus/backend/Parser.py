@@ -7,9 +7,9 @@ from Bio import Entrez
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
 
-import httplib
+import http.client
 
-import Networking
+from . import Networking
 
 
 ## This exception is imported by other classes, and is used
@@ -33,7 +33,7 @@ class GeneralRequestParser:
             self.error_status = False
         
         except: 
-            print "Error building generic parser object"
+            print("Error building generic parser object")
             self.error_status = True
     
 
@@ -197,7 +197,7 @@ class GeneralRequestParser:
                 
                 ## if we're not on our first try
                 if not retryCounter[0]-1 == 0:
-                    print("Retry number " + str(retryCounter[0]) + " of " + str(numberOfRetries+1))
+                    print(("Retry number " + str(retryCounter[0]) + " of " + str(numberOfRetries+1)))
                 
                 ## return value may be a real handle or -1
                 handle = function_to_apply(ID)
@@ -225,7 +225,7 @@ class GeneralRequestParser:
                 # Bio.Entrez.Parser.CorruptedXMLError - Something is wrong with the XML 
                 # Bio.Entrez.Parser.NotXMLError - the XML is not XML (unlikely, but worth keeping!)
                 # Bio.Entrez.Parser.ValidationError - unable to validate the XML (this can be ignored, but best not to!)
-                except (httplib.IncompleteRead, Entrez.Parser.CorruptedXMLError, Entrez.Parser.NotXMLError, Entrez.Parser.ValidationError), err:  
+                except (http.client.IncompleteRead, Entrez.Parser.CorruptedXMLError, Entrez.Parser.NotXMLError, Entrez.Parser.ValidationError) as err:  
                     return -1
 
                 return XML

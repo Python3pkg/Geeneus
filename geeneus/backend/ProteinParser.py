@@ -13,12 +13,12 @@ from Bio import Entrez
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
 from xml.dom.minidom import parseString
-import ProteinObject
-import Networking
-import httplib
-import Parser as GRP
-import UniprotAPI
-from DataStructures import CaseInsensitiveDict as CID
+from . import ProteinObject
+from . import Networking
+import http.client
+from . import Parser as GRP
+from . import UniprotAPI
+from .DataStructures import CaseInsensitiveDict as CID
 
 IDTYPES = {-2:"International Protein Index",\
                 -1:"Unknown protein accession type", \
@@ -55,8 +55,8 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
             self.shortcut = shortcut
             self.error_status = False
              
-        except Exception, e: 
-            print "Fatal error when creating ProteinRequestParserObject"
+        except Exception as e: 
+            print("Fatal error when creating ProteinRequestParserObject")
             self.error_status = True
             raise e
 
@@ -81,7 +81,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 # return a copy of the list of keys (without -1 key)
 #
     def accession_classes(self):
-        return IDTYPES.values()
+        return list(IDTYPES.values())
 
 #--------------------------------------------------------
 # PUBLIC FUNCTION
@@ -90,7 +90,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 # on fail
 
     def has_key(self, ID):
-        return self.protein_datastore.has_key(ID)
+        return ID in self.protein_datastore
 
             
 #--------------------------------------------------------
@@ -288,7 +288,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 
             # if we retry a bunch of times and it doesn't work
             if record == -2:
-                print "Unable to carry out esearch for term{y}".format(y=Accession)
+                print("Unable to carry out esearch for term{y}".format(y=Accession))
                 return -1
                         
             # else we got some XML
@@ -300,9 +300,9 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 
             # if not
             else:
-                print "There are {op} possible options, shown below. For PDB values, this often arises because seperate chains are treated as different proteins".format(op=len(IdList))
+                print("There are {op} possible options, shown below. For PDB values, this often arises because seperate chains are treated as different proteins".format(op=len(IdList)))
                 for i in IdList:
-                    print i
+                    print(i)
                 return -1
 
         return self.protein_translationMap[Accession]
@@ -387,7 +387,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
         # check the function actually makes sense taking
         # a single ID element as input
         if function not in self.batchableFunctions:
-            print "Warning, function cannot be run via batch"
+            print("Warning, function cannot be run via batch")
             return
 
         # Firstly, we identify which, if any of these are already in the 
@@ -451,7 +451,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
         fetchCounter = 0
         
         for protein_xml in listOfXML:
-            if not self.protein_datastore.has_key(toFetch[fetchCounter]) and not protein_xml == -1 :
+            if toFetch[fetchCounter] not in self.protein_datastore and not protein_xml == -1 :
                 self.protein_datastore[toFetch[fetchCounter]] = ProteinObject.ProteinObject(toFetch[fetchCounter], [protein_xml])
             
             fetchCounter = fetchCounter+1
@@ -573,7 +573,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 #
     def printWarning(self, message):
         if self.loud:
-            print message
+            print(message)
 
 
 #--------------------------------------------------------
@@ -599,7 +599,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
             exitcodes = 2,7
         
         if IDtype in exitcodes:
-            print "[UniProt]: Falling back and querying UniProt servers...  "
+            print("[UniProt]: Falling back and querying UniProt servers...  ")
         
             # query the server through the UniprotAPI class
             self.UniprotAPI.getProteinObjectFromUniProt(self.protein_datastore, accessionID)
@@ -608,7 +608,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
             # from the dictionary
             try:
                 self.protein_datastore[accessionID]
-                print "[UniProt]: Sucess!"
+                print("[UniProt]: Sucess!")
                 return True
             except KeyError:
                 return False
@@ -618,14 +618,14 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
 
     def loadfile(self, filename):
         with open(filename) as openFile:
-            print "Reading in file..."
+            print("Reading in file...")
             xmlstring = openFile.read()
            
 
             compositeDOM = parseString(xmlstring)
            
-        print "Done"
-        print "Extracting protein data..."
+        print("Done")
+        print("Extracting protein data...")
         elementsList = compositeDOM.getElementsByTagName("entry")
         
         
@@ -635,7 +635,7 @@ class ProteinRequestParser(GRP.GeneralRequestParser):
         "Parsing XML..."
 
         for element in elementsList:
-            print "Parsing " + str(counter) +"/"+str(total)
+            print("Parsing " + str(counter) +"/"+str(total))
             self.UniprotAPI.sideload_from_file(self.protein_datastore, element)
             counter = counter+1
                 

@@ -12,11 +12,11 @@ import datetime
 import sys
 import signal
 import time
-import urllib2
-import StringIO
+import urllib.request, urllib.error, urllib.parse
+import io
 import requests
-import ProteinParser
-from httplib import BadStatusLine
+from . import ProteinParser
+from http.client import BadStatusLine
 from Bio import Entrez
 
 #--------------------------------------------------------
@@ -61,7 +61,7 @@ class Networking:
                 try:
                     retval = f(*args)
                 except TimeoutException:
-                    print "\nWarning: Timeout reached after {time} seconds\n".format(time=timeout_time)
+                    print("\nWarning: Timeout reached after {time} seconds\n".format(time=timeout_time))
                     return default
                 finally:
                     signal.signal(signal.SIGALRM, handler)
@@ -108,7 +108,7 @@ class Networking:
         handle = self.__internal_efNT(GI, start, end, stand_val)
     
         if (handle == -1):
-            print "[NCBI]: Networking Error: Problem getting Nucleotide data for GI|{gi}".format(gi=GI)
+            print("[NCBI]: Networking Error: Problem getting Nucleotide data for GI|{gi}".format(gi=GI))
             return -1
         else:
             return handle
@@ -130,7 +130,7 @@ class Networking:
         self.stay_within_limits()
         handle = self.__internal_efG(GeneID)
         if (handle == -1):
-            print "[NCBI]: Network Error: Problem getting gene  data for ID: {GID}".format(GID=GeneID)
+            print("[NCBI]: Network Error: Problem getting gene  data for ID: {GID}".format(GID=GeneID))
             return -1
         else:
             return handle
@@ -153,7 +153,7 @@ class Networking:
         self.stay_within_limits()
         handle = self.__internal_efP(ProteinID)
         if (handle == -1):
-            print "[NCBI]: Networking Error: Problem getting protein data for ID(s): {PID}".format(PID=ProteinID)
+            print("[NCBI]: Networking Error: Problem getting protein data for ID(s): {PID}".format(PID=ProteinID))
             return -1
         else:
             return handle
@@ -177,7 +177,7 @@ class Networking:
         self.stay_within_limits()
         handle = self.__internal_epP(ProteinIDList)
         if (handle == -1):
-            print "[NCBI]: Networking Error: Problem ePosting ID(s): {PID}".format(PID=ProteinIDList)
+            print("[NCBI]: Networking Error: Problem ePosting ID(s): {PID}".format(PID=ProteinIDList))
             return -1
         else:
             return handle
@@ -198,10 +198,10 @@ class Networking:
 
     def esearchProtein(self, term):
         self.stay_within_limits()
-        print "looking_up ..." + str(term)
+        print("looking_up ..." + str(term))
         handle = self.__internal_esP(term)
         if (handle == -1):
-            print "[NCBI]: Networking Error: Problem eSearching for term: {PID}".format(PID=term)
+            print("[NCBI]: Networking Error: Problem eSearching for term: {PID}".format(PID=term))
             return -1
         else:
             return handle
@@ -228,18 +228,18 @@ class Networking:
         # Below we have error handlers for the various types of errors you might get
         # Additional edge cases can be added here as necessary (think of this like
         # an except switch/case statement
-        except (urllib2.HTTPError), err:
-            print "[NCBI]: HTTP error({0}): {1}".format(err.code, err.reason)
+        except (urllib.error.HTTPError) as err:
+            print("[NCBI]: HTTP error({0}): {1}".format(err.code, err.reason))
             return -1 
-        except BadStatusLine, err:
-            print "[NCBI]: httplib error - " + str(err)
-            print "[NCBI]: This is a super rare error! Congratualtions?"
+        except BadStatusLine as err:
+            print("[NCBI]: httplib error - " + str(err))
+            print("[NCBI]: This is a super rare error! Congratualtions?")
             return -1
-        except urllib2.URLError, err:
+        except urllib.error.URLError as err:
             try:
-                print "[NCBI]: URLError error({0}): {1}".format(err.code, err.reason)
-            except AttributeError, err:
-                print "[NCBI]: Corrupted urllib2.URLError raised"
+                print("[NCBI]: URLError error({0}): {1}".format(err.code, err.reason))
+            except AttributeError as err:
+                print("[NCBI]: Corrupted urllib2.URLError raised")
                 return -1
             return -1
         return handle
@@ -277,12 +277,12 @@ class Networking:
 
     def __uniprotNetworkingCall(self, queryString):
         try:
-            handle = urllib2.urlopen(queryString)
-        except urllib2.URLError, err:
+            handle = urllib.request.urlopen(queryString)
+        except urllib.error.URLError as err:
             try:
-                print "[UniProt]: URLError error({0}): {1}".format(err.code, err.reason)
-            except AttributeError, err:
-                print "Corrupted urllib2.URLError raised"
+                print("[UniProt]: URLError error({0}): {1}".format(err.code, err.reason))
+            except AttributeError as err:
+                print("Corrupted urllib2.URLError raised")
                 return -1
             return -1
         return handle
@@ -303,9 +303,9 @@ class Networking:
         # imitate a file and avoid fileIO bottle neck
 
         try:
-            r = requests.post('http://www.uniprot.org/batch/', files={'file':StringIO.StringIO(' '.join(accessionList))}, params={'format':returnFormat})
+            r = requests.post('http://www.uniprot.org/batch/', files={'file':io.StringIO(' '.join(accessionList))}, params={'format':returnFormat})
         except:
-            print "[UNIPROT]: Networking error when batch querying UniProt for isoforms"
+            print("[UNIPROT]: Networking error when batch querying UniProt for isoforms")
             return -1
 
 
@@ -314,11 +314,11 @@ class Networking:
         while 'Retry-After' in r.headers:
             
             if retrycounter == 3:
-                print "[UNIPROT] Unable to batch get isoform data... Server request failed"
+                print("[UNIPROT] Unable to batch get isoform data... Server request failed")
                 return -1
             
             t = int(r.headers['Retry-After'])
-            print '[UNIPROT] Initial batch request failed. Waiting and retrying (' + str(retrycounter+1)+" of 3)" 
+            print('[UNIPROT] Initial batch request failed. Waiting and retrying (' + str(retrycounter+1)+" of 3)") 
             time.sleep(t)
             r = requests.get(r.url)
             retrycounter = retrycounter+1
@@ -337,12 +337,12 @@ class Networking:
     def __internal_PfamNR(self, queryString):
         
         try:
-            handle = urllib2.urlopen(queryString)
-        except urllib2.URLError, err:
+            handle = urllib.request.urlopen(queryString)
+        except urllib.error.URLError as err:
             try:
-                print "[Pfam]: URLError error({0}): {1}".format(err.code, err.reason)
-            except AttributeError, err:
-                print "Corrupted urllib2.URLError raised"
+                print("[Pfam]: URLError error({0}): {1}".format(err.code, err.reason))
+            except AttributeError as err:
+                print("Corrupted urllib2.URLError raised")
                 return -1
             return -1
         return handle

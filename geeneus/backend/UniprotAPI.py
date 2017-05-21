@@ -5,12 +5,12 @@
 # Contact at alex.holehouse@wustl.edu
 #
 
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from xml.dom.minidom import parseString
-import ProteinObject
-import Networking
-import ProteinParser
-import StringIO
+from . import ProteinObject
+from . import Networking
+from . import ProteinParser
+import io
 from Bio import SeqIO
 import re
 
@@ -81,7 +81,7 @@ class UniprotAPI:
                 continue
             
         if accession == "":
-            print "Unable to find accession tag"
+            print("Unable to find accession tag")
             return False
 
         return(self._build_and_complete(accession, dom, datastore))
@@ -100,7 +100,7 @@ class UniprotAPI:
         try:
             xml = dom.toxml()
         except AttributeError:
-            print "Error - unable to parse xml associated with " + accessionID
+            print("Error - unable to parse xml associated with " + accessionID)
             return failure
 
         # If we get here then the networking portion theoretically worked
@@ -120,9 +120,9 @@ class UniprotAPI:
             host = self._getHost(dom, accessionID)
             taxonomy = self._getTaxonomy(dom, accessionID)
             isoforms = self._getIsoforms(dom, accessionID)
-        except UniprotAPIException, e:
-            print e
-            print "Error while parsing UniProt XML associated with accession + " + accessionID + ".\nSkipping..."
+        except UniprotAPIException as e:
+            print(e)
+            print("Error while parsing UniProt XML associated with accession + " + accessionID + ".\nSkipping...")
             
             # this means if we error at any point we don't add it to the datastore, but if all is well we do
             return failure
@@ -213,7 +213,7 @@ class UniprotAPI:
                 try:
                     elements = domObject.getElementsByTagName("entry")
                     if len(elements) > 1:
-                        print "[UniProt] Lookup for accession " + str(accessionID) + " generated more than one result. Skipping..."
+                        print("[UniProt] Lookup for accession " + str(accessionID) + " generated more than one result. Skipping...")
                         return -1
                     retval = elements[0]
                     return retval
@@ -330,14 +330,14 @@ class UniprotAPI:
                 # first look for location->position nodes
                 try:
                     tempDict['location'] = int(str(feature.getElementsByTagName('location')[0].getElementsByTagName('position')[0].attributes["position"].nodeValue))
-                except IndexError, e:
+                except IndexError as e:
 
                     # if that fails look for location->begin position nodes
                     try:
                         tempDict['location'] = int(str(feature.getElementsByTagName('location')[0].getElementsByTagName('begin')[0].attributes["position"].nodeValue))
 
                     # if *that* fails abort and raise an exception!
-                    except IndexError, e:     
+                    except IndexError as e:     
                         raise UniprotAPIException("Unable to find location list for mutation parsing")
 
                 # assuming its not a deletion
@@ -418,8 +418,8 @@ class UniprotAPI:
         # if there is no "gene" tag then set Gene name to an empty string
         try:
             self._neq1(geneList, 'gene', ID)
-        except UniprotAPIException,e :
-            print e
+        except UniprotAPIException as e :
+            print(e)
             return fallBack
         
         
@@ -591,8 +591,8 @@ class UniprotAPI:
             
             try:
                 domObject = parseString(handle.read())
-            except Exception, e:
-                print e 
+            except Exception as e:
+                print(e) 
                 raise UniprotAPIException("Error when converting Pfam XML to DOM object")
             
             return domObject
@@ -604,8 +604,8 @@ class UniprotAPI:
         try:
             PfamDomObject = getPfamDOM(ID)
             self._isValidXML(PfamDomObject)
-        except UniprotAPIException, e:
-            print e
+        except UniprotAPIException as e:
+            print(e)
             raise UniprotAPIException("Error when accessing Pfam database with accession " + ID)
 
         elementList = PfamDomObject.getElementsByTagName("entry")[0].childNodes
@@ -618,13 +618,13 @@ class UniprotAPI:
                 try:
                     
                     if not len(str(element.childNodes[0].nodeValue)) == len(sequence):
-                        print "Length difference between sequences"
-                        print "Pfam sequence (" + str(len(element.childNodes[0].nodeValue)) +") = " + str(element.childNodes[0].nodeValue).lower()
-                        print "Uniprot sequence ("  + str(len(sequence)) +") = " + str(sequence).lower()
+                        print("Length difference between sequences")
+                        print("Pfam sequence (" + str(len(element.childNodes[0].nodeValue)) +") = " + str(element.childNodes[0].nodeValue).lower())
+                        print("Uniprot sequence ("  + str(len(sequence)) +") = " + str(sequence).lower())
                     
                         raise UniprotAPIException("Pfam and Uniprot sequences fail to match for accession " + ID)
-                except Exception, e:
-                    print e
+                except Exception as e:
+                    print(e)
                     # print element.toxml()
                     return element
             elif element.nodeName == 'matches':
@@ -701,7 +701,7 @@ class UniprotAPI:
             
             # we can then parse the returned raw data to create a structured
             # Biopython FASTA list
-            isoformList = list(SeqIO.parse(StringIO.StringIO(isoformRaw), 'fasta'))
+            isoformList = list(SeqIO.parse(io.StringIO(isoformRaw), 'fasta'))
 
             for record in isoformList:
                 
@@ -741,10 +741,10 @@ class UniprotAPI:
                     
                 # This is a bit bad (catching every exception) but means if any part of the above
                 # process goes wrong we default to extracting from the ID    
-                except Exception, e:
-                    print e 
-                    print record.description
-                    print "Error when parsing isoform name using description (above), falling back to identifiers..."
+                except Exception as e:
+                    print(e) 
+                    print(record.description)
+                    print("Error when parsing isoform name using description (above), falling back to identifiers...")
                     isoformName = (record.id[record.id.find("|")+1:record.id.rfind("|")])
 
                 

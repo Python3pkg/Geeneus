@@ -8,11 +8,11 @@
 
 
 def show_warning(msg):
-    print "[WARNING]: " + str(msg)
+    print("[WARNING]: " + str(msg))
 
 def show_error(msg):
-    print "[ERROR]: " + str(msg)
+    print("[ERROR]: " + str(msg))
 
 def show_status(msg):
-    print "[STATUS]: " + str(msg)
+    print("[STATUS]: " + str(msg))
     

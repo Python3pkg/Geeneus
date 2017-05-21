@@ -3,7 +3,7 @@
 # Copyright 2012-2015 by Alex Holehouse - see LICENSE for more info
 # Contact at alex.holehouse@wustl.edu
 import Bio.Entrez
-import backend
+from . import backend
 
 class GeneManager:
     """ Manager object used to access relevant information via the below methods. The *Manager classes are the only public facing classes in Geeneus, and are the only ones which should be used to access remote information."""
@@ -35,21 +35,21 @@ class GeneManager:
     
     def get_gene_sequence(self, ID):
         """Returns the DNA sequence associated with this accession number"""
-        print "+-------------------------------------------------------------------------------------+"
-        print "| This function will return a gene sequence. Please wait for 0.1.4 for functionality  |"
-        print "+-------------------------------------------------------------------------------------+"
+        print("+-------------------------------------------------------------------------------------+")
+        print("| This function will return a gene sequence. Please wait for 0.1.4 for functionality  |")
+        print("+-------------------------------------------------------------------------------------+")
         
         #return self.datastore.get_consensus_sequence(ID)
         
     def get_gene_coding_sequence(self, ID):
-        print "+----------------------------------------------------------------------+"
-        print "| This function will return a dictionary of isoform-sequence pairings  |"
-        print "+----------------------------------------------------------------------+"
+        print("+----------------------------------------------------------------------+")
+        print("| This function will return a dictionary of isoform-sequence pairings  |")
+        print("+----------------------------------------------------------------------+")
 
     def get_gene_SNP(self, ID):
-        print "+--------------------------------------------------------------------------------------------+"
-        print "| This function will return a dictionary of SNP-number:Dictionary with SNPs for the gene ID  |"
-        print "+--------------------------------------------------------------------------------------------+"
+        print("+--------------------------------------------------------------------------------------------+")
+        print("| This function will return a dictionary of SNP-number:Dictionary with SNPs for the gene ID  |")
+        print("+--------------------------------------------------------------------------------------------+")
     
     def get_raw_xml(self, ID):
         return self.datastore.get_raw_xml(ID)

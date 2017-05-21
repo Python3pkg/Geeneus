@@ -21,7 +21,7 @@ class TestUniprotAPIFunctions(unittest.TestCase):
         temp = {}
         
         for ID in self.listOfIDs:
-            print "ID = " + ID
+            print("ID = " + ID)
             self.UAPI.getProteinObjectFromUniProt(temp, ID)
             
             
@@ -43,7 +43,7 @@ class TestUniprotAPIFunctions(unittest.TestCase):
         datastore = {}
         
         self.UAPI.getProteinObjectFromUniProt(datastore, "Q9Y6Z4")
-        print "\nBAD_ID should yeild a gracefull error/ignore"
+        print("\nBAD_ID should yeild a gracefull error/ignore")
         self.UAPI.getProteinObjectFromUniProt(datastore, "BAD_ID")
         self.UAPI.getProteinObjectFromUniProt(datastore, "P01889")
 

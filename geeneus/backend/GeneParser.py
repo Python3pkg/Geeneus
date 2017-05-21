@@ -7,9 +7,9 @@ from Bio import Entrez
 from Bio.Seq import Seq
 from Bio.Alphabet import IUPAC
 
-import GeneObject
-import Networking
-import Parser as GRP
+from . import GeneObject
+from . import Networking
+from . import Parser as GRP
 
 # RequestParser is a wrapper datastore layer, which facilitates non-redundant access to the
 # GeneObjects. It is also where direct communication with the NCBI server occurs, but no xml
@@ -27,9 +27,9 @@ class GeneRequestParser(GRP.GeneralRequestParser):
             # If we get here we're good to go!
             self.error_status = False
            
-        except Exception, e:
-            print eb
-            print "Fatal error when creating GeneRequestParserObject"
+        except Exception as e:
+            print(eb)
+            print("Fatal error when creating GeneRequestParserObject")
             self.error_status = True
 
             

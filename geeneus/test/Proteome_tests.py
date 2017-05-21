@@ -108,7 +108,7 @@ class TestProteomeFunctions(unittest.TestCase):
         self.assertEqual(testSeq, self.manager_cacheOff.get_protein_sequence("2YMB_A"))
         self.assertEqual(testSeq, self.manager_cacheOn.get_protein_sequence("2YMB_A"))
        
-        print "The following PDB values are generic, so will return a list of GIs which we can't resolve"
+        print("The following PDB values are generic, so will return a list of GIs which we can't resolve")
         self.assertEqual(None, self.manager_cacheOff.get_protein_sequence("2YMB"))
         self.assertEqual(None, self.manager_cacheOn.get_protein_sequence("2YMB"))
 
@@ -189,4 +189,4 @@ class TestProteomeFunctions(unittest.TestCase):
         self.assertEqual({}, self.manager_cacheOn.batch_get_protein_sequence(IDLIST))
        
 if __name__ == '__main__':
-    print "Please run all tests together"
+    print("Please run all tests together")

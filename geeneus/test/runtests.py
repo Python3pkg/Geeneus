@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-import __init__ as test
+from . import __init__ as test
 
 network = False
 proteome = False

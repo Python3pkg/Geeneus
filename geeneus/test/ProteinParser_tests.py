@@ -20,12 +20,12 @@ class TestProteinParserFunctions(unittest.TestCase):
 
         
     def test_get_fake_protein_sequence(self):
-        print"\nYou should see a warning regarding 'FAKETEST' below"
+        print("\nYou should see a warning regarding 'FAKETEST' below")
         self.assertEqual(None, self.ParserObject.get_sequence("FAKETEST"))
 
 
     def test_get_batch_protein_sequence(self):
-        print"\nYou should see a warning regarding 'FAKETEST' below"
+        print("\nYou should see a warning regarding 'FAKETEST' below")
         IDLIST = ["AAB29246", "FAKETEST", "1842230"]
         outlist = self.ParserObject.batchFetch(self.ParserObject.get_sequence, IDLIST)
             
@@ -44,26 +44,26 @@ class TestProteinParserFunctions(unittest.TestCase):
 
         counter = 0
         for i in IDLIST:
-            print counter
-            print i
-            print outlist[i]
+            print(counter)
+            print(i)
+            print(outlist[i])
             counter = counter+1
 
 
         # generate 10 numbe
-        mylist = list(xrange(133))
+        mylist = list(range(133))
         selectList = random.sample(mylist, 20)
         testList = []
         for i in selectList:
-            print "Accession ID: " + IDLIST[i]
-            print self.ParserObject.get_taxonomy(IDLIST[i])
-            print self.ParserObject.get_other_accessions(IDLIST[i])
-            print self.ParserObject.get_species(IDLIST[i])
-            print self.ParserObject.get_domains(IDLIST[i])
-            print self.ParserObject.get_gene_name(IDLIST[i])
-            print self.ParserObject.get_geneID(IDLIST[i])
-            print self.ParserObject.get_record_version(IDLIST[i])
-            print self.ParserObject.get_other_accessions(IDLIST[i])
+            print("Accession ID: " + IDLIST[i])
+            print(self.ParserObject.get_taxonomy(IDLIST[i]))
+            print(self.ParserObject.get_other_accessions(IDLIST[i]))
+            print(self.ParserObject.get_species(IDLIST[i]))
+            print(self.ParserObject.get_domains(IDLIST[i]))
+            print(self.ParserObject.get_gene_name(IDLIST[i]))
+            print(self.ParserObject.get_geneID(IDLIST[i]))
+            print(self.ParserObject.get_record_version(IDLIST[i]))
+            print(self.ParserObject.get_other_accessions(IDLIST[i]))
             
           
         self.assertEquals(104, self.ParserObject.datastore_size())
@@ -74,7 +74,7 @@ class TestProteinParserFunctions(unittest.TestCase):
         if len(variants) > 0:
             self.assertEquals(38, variants[0]['location'])
         else:
-            print "If we're connected to the internet this test has failed!"
+            print("If we're connected to the internet this test has failed!")
 
 
     def test_get_number_of_items(self):

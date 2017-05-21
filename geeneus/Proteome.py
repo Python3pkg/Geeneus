@@ -56,7 +56,7 @@ class ProteinManager:
         """ Return a list of the keys in the datastore (note this hides 
         the always present '-1' key
         """
-        return self.datastore.keys()
+        return list(self.datastore.keys())
 
 
     def accession_classes(self):
@@ -79,7 +79,7 @@ class ProteinManager:
         """ Check if the datastore has a protein ID loaded or not. Does
             not preload the ID in question
         """
-        return self.datastore.has_key(ID)
+        return ID in self.datastore
 
     @convertIDToUpperCase
     def error(self, ID):
@@ -88,7 +88,7 @@ class ProteinManager:
             True, False or None if no record has been downloaded
         """
         
-        if self.datastore.has_key(ID):
+        if ID in self.datastore:
             return self.datastore.protein_error(ID)
         else:
             return None
@@ -104,7 +104,7 @@ class ProteinManager:
             return False.
         """
 
-        if self.datastore.has_key(ID):
+        if ID in self.datastore:
             return self.datastore.protein_exists(ID)
         else:
             return None

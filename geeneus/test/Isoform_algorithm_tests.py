@@ -4,7 +4,7 @@ from geeneus.backend import ProteinObject
 from geeneus.backend import Networking
 from geeneus.backend import UniprotAPI
 from Bio import Entrez
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from xml.dom.minidom import parseString
 
 import random
@@ -62,10 +62,10 @@ class TestIsoformAlgorithm(unittest.TestCase):
 
         lengthOfTest = len(patho)+10
         
-        for i in xrange(0,lengthOfTest):
+        for i in range(0,lengthOfTest):
             
-            print "On " + str(i) + " of " + str(lengthOfTest)
-            print "-----------------------------------------------------------------------------------------"
+            print("On " + str(i) + " of " + str(lengthOfTest))
+            print("-----------------------------------------------------------------------------------------")
 
             if pathocounter < len(patho):
                 ID = patho[pathocounter]
@@ -73,14 +73,14 @@ class TestIsoformAlgorithm(unittest.TestCase):
             else:
                 ID = self.get_random_accession()
            
-            print ID
+            print(ID)
             
             # Some values are just unsolvably pathalogical, so we allow the test to skip them. By unsolvable,
             # this is where a record is just missing from one of the databases - basically a human error or
             # some kind of inconsistency means we'll never get the same isoforms.
             #
             if ID in autofail:
-                print "Database error (i.e. there's some reason this will *never* work - skipping"
+                print("Database error (i.e. there's some reason this will *never* work - skipping")
                 continue
             
             NCBIISO = self.get_NCBI_isoform(ID)
@@ -89,7 +89,7 @@ class TestIsoformAlgorithm(unittest.TestCase):
                 # just skip it
                 continue
 
-            print "NCBI lookup done..."
+            print("NCBI lookup done...")
 
             UNIISO = self.get_Uniprot_isoform(ID)
             if UNIISO == -1:
@@ -98,7 +98,7 @@ class TestIsoformAlgorithm(unittest.TestCase):
                 continue
 
                         
-            print "UniProt lookup done"
+            print("UniProt lookup done")
             
             ## useful for failure analysis
            # print "NCBI dictionary"
@@ -116,7 +116,7 @@ class TestIsoformAlgorithm(unittest.TestCase):
         while go == False:
             try:
                 query = "http://www.uniprot.org/uniprot/?query=reviewed:yes+AND+organism:9606&format=xml&limit=1&offset="+str(random.randint(1,20000))+"&random=yes"
-                handle = urllib2.urlopen(query)
+                handle = urllib.request.urlopen(query)
                 dom = parseString(handle.read())
                 go = True
             except:
@@ -138,7 +138,7 @@ class TestIsoformAlgorithm(unittest.TestCase):
         datastore = {}
         PO = self.UP.getProteinObjectFromUniProt(datastore, ID)
         
-        if datastore.has_key(ID):
+        if ID in datastore:
             return(datastore[ID].get_isoforms())
         else:
             return -1
@@ -151,15 +151,15 @@ class TestIsoformAlgorithm(unittest.TestCase):
         if not len(NCBI) == len(UNIPROT):
             return False
 
-        for k in UNIPROT.keys():
+        for k in list(UNIPROT.keys()):
             try:
                 seq1 = UNIPROT[k][1]
                 seq2 = NCBI[k][1]
                 
             except KeyError:
-                print "Key mismatch"
-                print "Uniprot keys are = " + str(UNIPROT.keys())
-                print "NCBI key are = " + str(NCBI.keys())
+                print("Key mismatch")
+                print("Uniprot keys are = " + str(list(UNIPROT.keys())))
+                print("NCBI key are = " + str(list(NCBI.keys())))
                 return False
                 
             if not seq1 == seq2:
